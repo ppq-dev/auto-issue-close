@@ -1,0 +1,19 @@
+name: Auto Close Issues
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  close-issue:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'completed' || github.event.label.name == 'wontfix'
+    steps:
+      - name: Close issue
+        run: |
+          echo "Closing issue #${{ github.event.issue.number }} with label: ${{ github.event.label.name }}"
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+            -d '{"state": "closed"}'
